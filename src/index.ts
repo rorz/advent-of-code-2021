@@ -1,7 +1,9 @@
 import prompt from "prompt";
 
-import day1 from "./1";
 import { displayAnswer } from "./utils";
+
+// Days:
+import day1 from "./days/1";
 
 prompt.start();
 
