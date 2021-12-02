@@ -4,6 +4,7 @@ import { displayAnswer } from "./utils";
 
 // Days:
 import day1 from "./days/1";
+import day2 from "./days/2";
 
 prompt.start();
 
@@ -23,6 +24,10 @@ prompt.get(
     switch (day) {
       case 1: {
         displayAnswer(day1, part);
+        break;
+      }
+      case 2: {
+        displayAnswer(day2, part);
         break;
       }
       default: {
