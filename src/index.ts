@@ -5,6 +5,7 @@ import { displayAnswer } from "./utils";
 // Days:
 import day1 from "./days/1";
 import day2 from "./days/2";
+import day3 from "./days/3";
 
 prompt.start();
 
@@ -28,6 +29,10 @@ prompt.get(
       }
       case 2: {
         displayAnswer(day2, part);
+        break;
+      }
+      case 3: {
+        displayAnswer(day3, part);
         break;
       }
       default: {
