@@ -7,13 +7,8 @@ const bitLines: number[][] = parseInput(__filename).map((bitLine) =>
 
 if (bitLines[0] == null) throw new Error("Bit lines not set up.");
 
-let inverseLines: number[][] = [...new Array(bitLines[0].length)].map(() => []);
-
-bitLines.forEach((bitLine) => {
-  bitLine.forEach((bit, index) => {
-    inverseLines[index]?.push(bit);
-  });
-});
+// https://stackoverflow.com/a/36164530/1180964
+const inverseLines = bitLines[0].map((_, i) => bitLines.map((x) => x[i]));
 
 const part1 = () => {
   const gammaArray = inverseLines.map((column) => {
@@ -24,10 +19,7 @@ const part1 = () => {
   const gammaBinary = gammaArray.join("");
   const epsilonBinary = gammaArray.map((bit) => (bit === 1 ? 0 : 1)).join("");
 
-  const epsilon = parseInt(gammaBinary, 2);
-  const gamma = parseInt(epsilonBinary, 2);
-
-  return gamma * epsilon;
+  return parseInt(gammaBinary, 2) * parseInt(epsilonBinary, 2);
 };
 
 const getValueIndices = (oxygen: boolean) =>
@@ -37,26 +29,24 @@ const getValueIndices = (oxygen: boolean) =>
         return candidateIndices;
       }
 
-      const [oneIndices, zeroIndices] = column.reduce(
-        ([oneIs, zeroIs]: [number[], number[]], bit, index) => {
-          if (candidateIndices.includes(index)) {
-            if (bit === 1) {
-              return [[...oneIs, index], zeroIs];
-            }
-            return [oneIs, [...zeroIs, index]];
-          }
-          return [oneIs, zeroIs];
-        },
+      const [ones, zeroes] = column.reduce(
+        ([oneIs, zeroIs]: [number[], number[]], bit, index) =>
+          candidateIndices.includes(index)
+            ? [
+                bit === 1 ? [...oneIs, index] : oneIs,
+                bit === 0 ? [...zeroIs, index] : zeroIs,
+              ]
+            : [oneIs, zeroIs],
         [[], []]
       );
 
-      const ones = oneIndices.length;
-      const zeroes = zeroIndices.length;
-
-      if (oxygen ? ones >= zeroes : ones < zeroes) return oneIndices;
-      return zeroIndices;
+      return (
+        oxygen ? ones.length >= zeroes.length : ones.length < zeroes.length
+      )
+        ? ones
+        : zeroes;
     },
-    [...new Array(bitLines.length)].map((_, index) => index)
+    [...new Array(bitLines.length)].map((_, i) => i)
   );
 
 const part2 = () => {
@@ -71,10 +61,7 @@ const part2 = () => {
   const co2Binary = bitLines[co2Index]?.join("");
   if (!oxygenBinary || !co2Binary) throw new Error("Values not defined");
 
-  const oxygen = parseInt(oxygenBinary, 2);
-  const co2 = parseInt(co2Binary, 2);
-
-  return oxygen * co2;
+  return parseInt(oxygenBinary, 2) * parseInt(co2Binary, 2);
 };
 
 const answers: AnswerCollection = {
