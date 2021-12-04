@@ -50,15 +50,18 @@ const getValueIndices = (oxygen: boolean) =>
   );
 
 const part2 = () => {
-  const [oxygenIndex] = getValueIndices(true);
-  const [co2Index] = getValueIndices(false);
-
+  const [[oxygenIndex], [co2Index]] = [
+    getValueIndices(true),
+    getValueIndices(false),
+  ];
   if (!oxygenIndex || !co2Index) {
     throw new Error("Indices not defined");
   }
 
-  const oxygenBinary = bitLines[oxygenIndex]?.join("");
-  const co2Binary = bitLines[co2Index]?.join("");
+  const [oxygenBinary, co2Binary] = [
+    bitLines[oxygenIndex]?.join(""),
+    bitLines[co2Index]?.join(""),
+  ];
   if (!oxygenBinary || !co2Binary) throw new Error("Values not defined");
 
   return parseInt(oxygenBinary, 2) * parseInt(co2Binary, 2);
