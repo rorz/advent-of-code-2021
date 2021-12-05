@@ -47,6 +47,7 @@ const getValueIndices = (oxygen: boolean) =>
         : zeroes;
     },
     [...new Array(bitLines.length)].map((_, i) => i)
+    // [...new Array(bitLines.length)].map((_, i) => i)
   );
 
 const part2 = () => {
