@@ -10,23 +10,6 @@ const drawnNumbers = bingoRaw
 
 if (!drawnNumbers) throw new Error("Couldn't parse drawn numbers");
 
-// const bingoBoards = bingoRaw.slice(2, -1).reduce((board, line) => {
-//   //
-// }, []);
-// const boardInput = bingoRaw.slice(2, -1);
-// const bingoBoards: number[][][] = [];
-
-// let currentBoard: number[][] = [];
-
-// for (const line of boardInput) {
-//   if (line === "\n") {
-//     continue;
-//   }
-
-//   if ()
-// }
-
-// type BoardTally = [string[][], string[]];
 interface BoardTally {
   boards: string[][];
   currentBoard: string[];
@@ -37,18 +20,8 @@ type Board = {
   marked: boolean;
 }[][];
 
-// (tally: BoardTally, line) => {
-//   const [boards, currentBoard] = tally as BoardTally;
-//   if (line === "") {
-//     return [[...boards, currentBoard], []];
-//   }
-//   return [boards, [...currentBoard, line]];
-
-//   // return [[["hello"]], ["helloX"]];
-// },
-// [[], []]
-let bingoBoards = bingoRaw
-  .slice(2, -1)
+let bingoBoards = [...bingoRaw, ""]
+  .slice(2)
   .reduce(
     ({ boards, currentBoard }: BoardTally, line) => ({
       boards: !line ? [...boards, currentBoard] : boards,
@@ -60,20 +33,32 @@ let bingoBoards = bingoRaw
     board.map((line) =>
       line
         .split(" ")
-        .filter((char) => char !== " ")
+        .filter((char) => char !== " " && char !== "")
         .map((char) => ({ value: +char, marked: false }))
     )
   );
 
 // https://stackoverflow.com/a/40575135/1180964
-function transpose(matrix: Board) {
+const transpose = (matrix: Board) => {
   if (!matrix[0]) throw new Error("Can't transpose");
-  return Object.keys(matrix[0]).map((colNumber) =>
-    matrix.map((rowNumber) => rowNumber[+colNumber])
-  );
-}
+  return Object.keys(matrix[0]).map((col) => matrix.map((row) => row[+col]));
+};
 
-const part1 = () => {
+const unmarkedSum = (board: Board) =>
+  board.reduce(
+    (tally, line) =>
+      tally +
+      line.reduce(
+        (innerTally, { value, marked }) => innerTally + (!marked ? value : 0),
+        0
+      ),
+
+    0
+  );
+
+const computeWinner = (returnFirst: boolean): number => {
+  const winningEntries: { index: number; number: number }[] = [];
+
   for (const number of drawnNumbers) {
     bingoBoards = bingoBoards.map((board) =>
       board.map((line) =>
@@ -83,49 +68,38 @@ const part1 = () => {
         }))
       )
     );
-    for (const board of bingoBoards) {
+    for (const [index, board] of bingoBoards.entries()) {
       const rowMatch = board.filter((line) =>
         line.every(({ marked }) => !!marked)
       ).length;
       const inverseBoard = transpose(board);
-      const colMatch = inverseBoard.filter(
-        (line) =>
-          line != null && line.every((cell) => cell != null && !!cell.marked)
+      const colMatch = inverseBoard.filter((line) =>
+        line.every((cell) => cell?.marked)
       ).length;
-      // const colMatch = board.flat().reduce(
-      //   (columns: Board, cell, index) => {
-      //     let newColumns = [...columns] as Board;
-      //     newColumns[index % 5]?.push(cell);
-      //   },
-      //   [...new Array(5)].map(() => [...new Array(5)])
-      // );
-      // if (board[0] == null) throw new Error("Board broken.");
-      // const inverseBoard = board[0].map((_, i) =>
-      //   board.map((x) => x[i])
-      // ) as Board;
-      // const colMatch = inverseBoard.filter((line) =>
-      //   line.every(({ marked }) => !!marked)
-      // ).length;
       if (rowMatch || colMatch) {
-        const unmarkedSum = board.reduce((tally, line) => {
-          const innerTotal = line.reduce((innerTally, { value, marked }) => {
-            if (!marked) {
-              return innerTally + value;
-            }
-            return innerTally;
-          }, 0);
-          return tally + innerTotal;
-        }, 0);
-        return unmarkedSum * number;
+        if (returnFirst) {
+          return unmarkedSum(board) * number;
+        } else {
+          if (!winningEntries.find((entry) => entry.index === index)) {
+            winningEntries.push({ index, number });
+          }
+          if (winningEntries.length === bingoBoards.length) break;
+        }
       }
     }
+    if (winningEntries.length === bingoBoards.length) break;
   }
-  return -1;
+
+  const lastWinner = winningEntries.at(-1);
+  if (!lastWinner) throw new Error("No last winner.");
+  const lastBoard = bingoBoards[lastWinner.index];
+  if (!lastBoard) throw new Error("Last board not found.");
+  return unmarkedSum(lastBoard) * lastWinner.number;
 };
 
-const part2 = () => {
-  return 0;
-};
+const part1 = () => computeWinner(true);
+
+const part2 = () => computeWinner(false);
 
 const answers: AnswerCollection = {
   part1,
