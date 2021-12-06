@@ -2,10 +2,10 @@ import fs from "fs";
 import path from "path";
 import { AnswerCollection } from "../types";
 
-const parseInput = (filename: string) => {
+const parseInput = (filename: string, example?: boolean) => {
   const file = path.resolve(
     __dirname,
-    "../../input",
+    `../../${example === true ? "examples" : "input"}`,
     `${path.basename(filename).split(".")[0] as string}.txt`
   );
   const data = fs.readFileSync(file, "utf-8");
