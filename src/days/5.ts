@@ -10,6 +10,7 @@ const coords = parseInput(__filename, false).map((coordLine) =>
 
 let xMax = 0;
 let yMax = 0;
+
 coords.forEach(([[x1, y1], [x2, y2]]) => {
   xMax = Math.max(xMax, x1, x2);
   yMax = Math.max(yMax, y1, y2);
@@ -32,40 +33,13 @@ const computeDangerPoints = (includeDiagonals?: boolean) => {
       let j = 0;
       const up = y1 > y2;
       const left = x1 > x2;
-      console.log(left ? "left" : "right", up ? "up" : "down");
-      console.log("Drawing diagonal", x1, y1, x2, y2);
-      if (up && left) {
-        for (let i = x1; i >= x2; i -= 1) {
-          console.log(y2, j);
-          cells![y1 - j]![i] += 1;
-          j += 1;
-        }
-      }
-      if (up && !left) {
-        for (let i = x1; i <= x2; i += 1) {
-          console.log(y1, j);
-          cells![y1 - j]![i] += 1;
-          j += 1;
-        }
-      }
-      if (!up && left) {
-        for (let i = x1; i >= x2; i -= 1) {
-          console.log(y2, j);
-          cells![y1 + j]![i] += 1;
-          j += 1;
-        }
-      }
-      if (!up && !left) {
-        for (let i = x1; i <= x2; i += 1) {
-          console.log(y1, j);
-          cells![y1 + j]![i] += 1;
-          j += 1;
-        }
+      for (let i = x1; left ? i >= x2 : i <= x2; left ? (i -= 1) : (i += 1)) {
+        cells![y1 + j]![i] += 1;
+        j += up ? -1 : 1;
       }
     }
   });
   let dangerPoints = 0;
-  cells.forEach((line) => console.log(JSON.stringify(line)));
   cells.forEach((line) =>
     line.forEach((cell) => {
       if (cell >= 2) {
